@@ -1,31 +1,60 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import App from "./App";
 import userEvent from "@testing-library/user-event";
 
-test("Show act console warning when changing input - fireEvent.change", () => {
-  render(<App />);
+describe("Shows Console Warning", () => {
+  it("simulates typing using fireEvent.change", () => {
+    render(<App />);
 
-  const nameInput = screen.getByLabelText("Pokemon");
-  fireEvent.change(nameInput, { target: { value: "squirtle" } });
+    const nameInput = screen.getByLabelText("Pokemon");
+    fireEvent.change(nameInput, { target: { value: "squirtle" } });
 
-  const submitButton = screen.getAllByText("Gotta catch 'em all");
+    screen.getAllByText("Gotta catch 'em all");
+  });
+
+  it("simulates typing using synchronous userEvent.change", () => {
+    render(<App />);
+
+    const nameInput = screen.getByLabelText("Pokemon");
+
+    userEvent.type(nameInput, "squirtle");
+
+    screen.getAllByText("Gotta catch 'em all");
+  });
 });
 
-test("Show act console warning when changing input - synchronous userEvent.change", () => {
-  render(<App />);
+describe("Does Not Show Console Warning", () => {
+  it("simulates typing using fireEvent.change", async () => {
+    render(<App />);
 
-  const nameInput = screen.getByLabelText("Pokemon");
-  userEvent.type(nameInput, "squirtle");
+    const nameInput = screen.getByLabelText("Pokemon");
+    await act(async () => {
+      fireEvent.change(nameInput, { target: { value: "squirtle" } });
+    });
 
-  const submitButton = screen.getAllByText("Gotta catch 'em all");
-});
+    screen.getAllByText("Gotta catch 'em all");
+  });
 
-test("Does NOT show act warning  -  async userEvent.change", async () => {
-  render(<App />);
+  it("simulates typing using synchronous userEvent.change", async () => {
+    render(<App />);
 
-  const nameInput = screen.getByLabelText("Pokemon");
-  await userEvent.type(nameInput, "squirtle", { delay: 10 });
+    const nameInput = screen.getByLabelText("Pokemon");
 
-  const submitButton = screen.getAllByText("Gotta catch 'em all");
+    await act(async () => {
+      userEvent.type(nameInput, "squirtle");
+    });
+
+    screen.getAllByText("Gotta catch 'em all");
+  });
+
+  it("simulates typing using async userEvent.change", async () => {
+    render(<App />);
+
+    const nameInput = screen.getByLabelText("Pokemon");
+    // delay must be >0ms to get no act warnings
+    await userEvent.type(nameInput, "squirtle", { delay: 0.5 });
+
+    screen.getAllByText("Gotta catch 'em all");
+  });
 });
