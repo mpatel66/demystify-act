@@ -10,7 +10,7 @@ describe("Shows Console Warning", () => {
     const nameInput = screen.getByLabelText("Pokemon");
     fireEvent.change(nameInput, { target: { value: "squirtle" } });
 
-    screen.getAllByText("Gotta catch 'em all");
+    screen.getByText("Gotta catch 'em all");
   });
 
   it("simulates typing using synchronous userEvent.change", () => {
@@ -20,7 +20,7 @@ describe("Shows Console Warning", () => {
 
     userEvent.type(nameInput, "squirtle");
 
-    screen.getAllByText("Gotta catch 'em all");
+    screen.getByText("Gotta catch 'em all");
   });
 });
 
@@ -33,7 +33,7 @@ describe("Does Not Show Console Warning", () => {
       fireEvent.change(nameInput, { target: { value: "squirtle" } });
     });
 
-    screen.getAllByText("Gotta catch 'em all");
+    screen.getByText("Gotta catch 'em all");
   });
 
   it("simulates typing using synchronous userEvent.change", async () => {
@@ -45,7 +45,7 @@ describe("Does Not Show Console Warning", () => {
       userEvent.type(nameInput, "squirtle");
     });
 
-    screen.getAllByText("Gotta catch 'em all");
+    screen.getByText("Gotta catch 'em all");
   });
 
   it("simulates typing using async userEvent.change", async () => {
@@ -55,6 +55,55 @@ describe("Does Not Show Console Warning", () => {
     // delay must be >0ms to get no act warnings
     await userEvent.type(nameInput, "squirtle", { delay: 0.5 });
 
-    screen.getAllByText("Gotta catch 'em all");
+    screen.getByText("Gotta catch 'em all");
+  });
+});
+
+describe("Submit Form with console errors", () => {
+  it("with fireEvent", async () => {
+    render(<App />);
+
+    const nameInput = screen.getByLabelText("Pokemon");
+    await userEvent.type(nameInput, "squirtle", { delay: 0.5 });
+
+    const submitButton = screen.getByText("Gotta catch 'em all");
+    fireEvent.click(submitButton);
+    await act(async () => {
+      userEvent.click(submitButton);
+    });
+  });
+  it("with userEvent.click", async () => {
+    render(<App />);
+
+    const nameInput = screen.getByLabelText("Pokemon");
+    await userEvent.type(nameInput, "squirtle", { delay: 0.5 });
+
+    const submitButton = screen.getByText("Gotta catch 'em all");
+    userEvent.click(submitButton);
+  });
+});
+
+describe("Submit Form without console errors", () => {
+  it("with fireEvent", async () => {
+    render(<App />);
+
+    const nameInput = screen.getByLabelText("Pokemon");
+    await userEvent.type(nameInput, "squirtle", { delay: 0.5 });
+
+    const submitButton = screen.getByText("Gotta catch 'em all");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+  });
+  it("with userEvent.click", async () => {
+    render(<App />);
+
+    const nameInput = screen.getByLabelText("Pokemon");
+    await userEvent.type(nameInput, "squirtle", { delay: 0.5 });
+
+    const submitButton = screen.getByText("Gotta catch 'em all");
+    await act(async () => {
+      userEvent.click(submitButton);
+    });
   });
 });
