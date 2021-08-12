@@ -68,9 +68,6 @@ describe("Submit Form with console errors", () => {
 
     const submitButton = screen.getByText("Gotta catch 'em all");
     fireEvent.click(submitButton);
-    await act(async () => {
-      userEvent.click(submitButton);
-    });
   });
   it("with userEvent.click", async () => {
     render(<App />);
@@ -91,6 +88,8 @@ describe("Submit Form without console errors", () => {
     await userEvent.type(nameInput, "squirtle", { delay: 0.5 });
 
     const submitButton = screen.getByText("Gotta catch 'em all");
+    // we wrap the fireEvent.click in act, as we need to wait for the React state to update following the click.
+    // If we waited for some text to appear after the click (as in the test below), then we would not need the act
     await act(async () => {
       fireEvent.click(submitButton);
     });
@@ -102,8 +101,10 @@ describe("Submit Form without console errors", () => {
     await userEvent.type(nameInput, "squirtle", { delay: 0.5 });
 
     const submitButton = screen.getByText("Gotta catch 'em all");
-    await act(async () => {
-      userEvent.click(submitButton);
-    });
+    // We don't need to wrap the userEvent.click with act as we later await for some text to appear
+    userEvent.click(submitButton);
+
+    // await screen.findByText("mega-punch", {}, { timeout: 2000 });
+    await screen.findByText("mega-punch");
   });
 });
